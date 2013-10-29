@@ -15,6 +15,8 @@ public abstract class IJustWannaBuyThingsActivity extends Activity {
 	
 	private IJustWannaBuyThings iJustWannaBuyThings;
 
+	public abstract void onConnect();
+	public abstract void onDisconnect();
 	public abstract void onQueryAllTheThings(int responseCode, ArrayList<JSONObject> responseList);
 	public abstract void onBuyAThing(int responseCode, JSONObject purchasedData);
 	public abstract void onWhatsMine(int responseCode, ArrayList<String> ownedSkus, ArrayList<JSONObject> purchaseDataList, ArrayList<String> signatureList);
@@ -71,6 +73,16 @@ public abstract class IJustWannaBuyThingsActivity extends Activity {
 	 */
 	IJustWannaBuyThingsListener listener = new IJustWannaBuyThingsListener() {
 
+		@Override
+		public void onConnect() {
+			IJustWannaBuyThingsActivity.this.onConnect();
+		}
+
+		@Override
+		public void onDisconnect() {
+			IJustWannaBuyThingsActivity.this.onDisconnect();
+		}
+		
 		@Override
 		public void onQueryAllTheThings(int responseCode, ArrayList<JSONObject> responseList) {
 			IJustWannaBuyThingsActivity.this.onQueryAllTheThings(responseCode, responseList);

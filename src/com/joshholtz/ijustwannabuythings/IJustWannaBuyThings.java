@@ -98,6 +98,8 @@ public class IJustWannaBuyThings {
 	 *
 	 */
 	public abstract static class IJustWannaBuyThingsListener {
+		public abstract void onConnect();
+		public abstract void onDisconnect();
 		public abstract void onQueryAllTheThings(int responseCode, ArrayList<JSONObject> responseList);
 		public abstract void onBuyAThing(int responseCode, JSONObject purchasedData);
 		public abstract void onWhatsMine(int responseCode, ArrayList<String> ownedSkus, ArrayList<JSONObject> purchaseDataList, ArrayList<String> signatureList);
@@ -305,11 +307,13 @@ public class IJustWannaBuyThings {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			mService = null;
+			listener.onDisconnect();
 		}
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			mService = IInAppBillingService.Stub.asInterface(service);
+			listener.onConnect();
 		}
 	};
 

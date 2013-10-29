@@ -21,6 +21,16 @@ public class SubclassedActivity extends IJustWannaBuyThingsActivity {
 	}
 	
 	@Override
+	public void onConnect() {
+		
+	}
+
+	@Override
+	public void onDisconnect() {
+		
+	}
+	
+	@Override
 	public void onQueryAllTheThings(int responseCode, ArrayList<JSONObject> responseList) {
 		Log.d("IJustWannaBuyThings", Arrays.toString(responseList.toArray()));
 	}

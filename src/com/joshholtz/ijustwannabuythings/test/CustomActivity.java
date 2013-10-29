@@ -64,6 +64,12 @@ public class CustomActivity extends Activity {
 	IJustWannaBuyThingsListener listener = new IJustWannaBuyThingsListener() {
 
 		@Override
+		public void onConnect() {}
+
+		@Override
+		public void onDisconnect() {}
+		
+		@Override
 		public void onQueryAllTheThings(int responseCode, ArrayList<JSONObject> responseList) {
 			// Just displaying the response
 			if (responseCode == IJustWannaBuyThings.BILLING_RESPONSE_RESULT_OK) {
