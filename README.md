@@ -6,13 +6,80 @@ Me too.
 ## Not the most suckiest Android In-app Billing wrapper
 I can't guarantee that this is the most complete or advanced Android In-app Billing helper but it simply works for me - so suck it other helpers.
 
-### Subclassing IJustWannaBuyThingsActivity
+<b>Note:</b> Consumables and subscriptions are not included in this library yet
 
-We didn't get this far yet - we just started last night
+## Setup
+
+1. Download JAR into your Android project's libs directory
+2. Add `<uses-permission android:name="com.android.vending.BILLING" />` to Manifest.xml
+
+### Subclassing IJustWannaBuyThingsActivity - (The easiest way)
+
+- Key components for setting up - override these methods
+  - onQueryAllTheThings(int responseCode, ArrayList<JSONObject> responseList)
+  - onBuyAThing(int responseCode, JSONObject purchasedData)
+  - onWhatsMine(int responseCode, ArrayList<String> ownedSkus, ArrayList<JSONObject> purchaseDataList, ArrayList<String> signatureList) {
+- Key components for interacting
+  - this.queryAllTheThings(Arrays.asList(new String[]{"bacon"}));
+  - this.buyAThing("bacon");
+  - this.whatsMine();
 
 ````java
 
-// Give me a break
+public class SubclassedActivity extends IJustWannaBuyThingsActivity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+	}
+	
+	@Override
+	public void onQueryAllTheThings(int responseCode, ArrayList<JSONObject> responseList) {
+		Log.d("IJustWannaBuyThings", Arrays.toString(responseList.toArray()));
+	}
+
+
+	@Override
+	public void onBuyAThing(int responseCode, JSONObject purchasedData) {
+		 Log.d("IJustWannaBuyThings", purchasedData.toString());
+	}
+
+
+	@Override
+	public void onWhatsMine(int responseCode, ArrayList<String> ownedSkus, ArrayList<JSONObject> purchaseDataList, ArrayList<String> signatureList) {
+		Log.d("IJustWannaBuyThings", Arrays.toString(ownedSkus.toArray()));
+	}
+	
+	
+	/**
+	 * An onClick handler to show all products
+	 * @param view
+	 */
+	public void onClickShowMeThings(View view) {
+		// Queries information about the supplied skus
+		this.queryAllTheThings(Arrays.asList(new String[]{"bacon"}));
+	}
+	
+	/**
+	 * An onClick handler to buy a bacon
+	 * @param view
+	 */
+	public void onClickBuyMeBacon(View view) {
+		// Starts the purchase for a sku
+		this.buyAThing("bacon");
+	}
+	
+	/**
+	 * An onClick get what I bought
+	 * @param view
+	 */
+	public void onClickWhatsMine(View view) {
+		// Starts request to get whats mine
+		this.whatsMine();
+	}
+
+}
 
 ````
 
@@ -26,10 +93,11 @@ We didn't get this far yet - we just started last night
 - Key components for interacting
   - iJustWannaBuyThings.queryAllTheThings(Arrays.asList(new String[]{"bacon"}));
   - iJustWannaBuyThings.buyAThing("bacon");
+  - iJustWannaBuyThings.whatsMine();
 
 ````java
 
-public class MainActivity extends Activity {
+public class CustomActivity extends Activity {
 
 	private IJustWannaBuyThings iJustWannaBuyThings;
 	
@@ -86,6 +154,19 @@ public class MainActivity extends Activity {
 				Log.d(IJustWannaBuyThings.LOG_TAG, "BuyAThing error occured - " + responseCode);
 			}
 		}
+
+		@Override
+		public void onWhatsMine(int responseCode, ArrayList<String> ownedSkus, ArrayList<JSONObject> purchaseDataList, ArrayList<String> signatureList) {
+			// Just displaying owned skus
+			for (String ownedSku : ownedSkus) {
+				Log.d(IJustWannaBuyThings.LOG_TAG, "Owned SKU - " + ownedSku);
+			}
+			
+			// Just display purchaseDataList
+			for (JSONObject purchaseData : purchaseDataList) {
+				Log.d(IJustWannaBuyThings.LOG_TAG, "Purchase Data - " + purchaseData);
+			}
+		}
 		
 	};
 	
@@ -105,6 +186,15 @@ public class MainActivity extends Activity {
 	public void onClickBuyMeBacon(View view) {
 		// Starts the purchase for a sku
 		iJustWannaBuyThings.buyAThing("bacon");
+	}
+	
+	/**
+	 * An onClick handler to get what I bought
+	 * @param view
+	 */
+	public void onClickWhatsMine(View view) {
+		// Starts request to get whats mine
+		iJustWannaBuyThings.whatsMine();
 	}
 
 }
