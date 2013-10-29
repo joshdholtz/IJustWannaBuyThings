@@ -27,7 +27,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class CustomActivity extends Activity {
 
 	private IJustWannaBuyThings iJustWannaBuyThings;
 	
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
 	}
 	
 	/**
-	 * An onClick handler to buy a bacon
+	 * An onClick handler to get what I bought
 	 * @param view
 	 */
 	public void onClickWhatsMine(View view) {

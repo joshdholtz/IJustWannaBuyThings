@@ -74,10 +74,10 @@ public class IJustWannaBuyThings {
 				catch (JSONException e) {
 					Log.d("IJustWannaBuyThings", "Failed to parse purchase data.");
 					e.printStackTrace();
-					listener.onBuyAThing(-1, null);
+					listener.onBuyAThing(-1, new JSONObject());
 				}
 			} else {
-				listener.onBuyAThing(-1, null);
+				listener.onBuyAThing(-1, new JSONObject());
 			}
 		}
 	}
@@ -174,7 +174,7 @@ public class IJustWannaBuyThings {
 			protected Bundle doInBackground(Void... params) {
 				try {
 					Bundle buyIntentBundle = mService.getBuyIntent(3, activity.getPackageName(), sku, "inapp", developerPayload);
-					Log.d("IJustWannaBuyThings", "skuDetails response - " + buyIntentBundle.getInt("RESPONSE_CODE"));
+					Log.d("IJustWannaBuyThings", "buyAThing response - " + buyIntentBundle.getInt("RESPONSE_CODE"));
 					return buyIntentBundle;
 				} catch (RemoteException e) {
 					e.printStackTrace();
@@ -186,16 +186,29 @@ public class IJustWannaBuyThings {
 			@Override
 			protected void onPostExecute(Bundle buyIntentBundle) {
 				if (buyIntentBundle != null) {
+					int responseCode = -1;
+					responseCode = buyIntentBundle.getInt("RESPONSE_CODE");
+					
 					PendingIntent pendingIntent = buyIntentBundle.getParcelable("BUY_INTENT");
-					try {
-						activity.startIntentSenderForResult(pendingIntent.getIntentSender(),
-								REQUEST_BUY_INTENT, new Intent(), Integer.valueOf(0), Integer.valueOf(0),
-								Integer.valueOf(0));
-					} catch (SendIntentException e) {
-						e.printStackTrace();
+					if (responseCode ==0) {
+						try {
+							if (activity == null) {
+								Log.d("IJustWannaBuyThings", "activity is null");
+							} else {
+								Log.d("IJustWannaBuyThings", "activity " + activity.toString());
+							}
+							
+							activity.startIntentSenderForResult(pendingIntent.getIntentSender(), REQUEST_BUY_INTENT, new Intent(), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0));
+							return;
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
+					
+					listener.onBuyAThing(responseCode, new JSONObject());
+					
 				} else {
-					listener.onBuyAThing(-1, null);
+					listener.onBuyAThing(-1, new JSONObject());
 				}
 			}
 
