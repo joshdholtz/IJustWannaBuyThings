@@ -10,7 +10,7 @@ I can't guarantee that this is the most complete or advanced Android In-app Bill
 
 ## Setup
 
-1. Download JAR into your Android project's libs directory
+1. Download JAR into your Android project's libs directory - [justwannabuythings-0.0.1.jar](https://github.com/joshdholtz/IJustWannaBuyThings/raw/master/builds/ijustwannabuythings-0.0.1.jar)
 2. Add `<uses-permission android:name="com.android.vending.BILLING" />` to Manifest.xml
 
 ### Subclassing IJustWannaBuyThingsActivity - (The easiest way)
