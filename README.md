@@ -6,7 +6,9 @@ Me too.
 ## Not the most suckiest Android In-app Billing wrapper
 I can't guarantee that this is the most complete or advanced Android In-app Billing helper but it simply works for me - so suck it other helpers.
 
-<b>Note:</b> Consumables and subscriptions are not included in this library yet
+<b>Note:</b> This is only built for Android In-app Billing V3
+
+<b>More Note:</b> Consumables and subscriptions are not included in this library yet
 
 ## Setup
 
