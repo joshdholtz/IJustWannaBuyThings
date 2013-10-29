@@ -4,11 +4,11 @@ Sick of implementing raw Android In-app Billing APIs? Sick of using other develo
 Me too.
 
 ## Not the most suckiest Android In-app Billing wrapper
-I can't guarantee that this is the most complete or advance Android In-app Billing helper but it simple works for me - so suck it other helpers.
+I can't guarantee that this is the most complete or advanced Android In-app Billing helper but it simply works for me - so suck it other helpers.
 
 ### Subclassing IJustWannaBuyThingsActivity
 
-We didn't get this far yet - we just startd tonight
+We didn't get this far yet - we just started last night
 
 ````java
 
