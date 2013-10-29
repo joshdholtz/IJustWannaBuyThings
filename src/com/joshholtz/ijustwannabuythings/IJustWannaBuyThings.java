@@ -22,28 +22,28 @@ import android.util.Log;
 import com.android.vending.billing.IInAppBillingService;
 
 public class IJustWannaBuyThings {
-	
+
 	public final static String LOG_TAG = "IJustWannaBuyThings";
 
 	public final static int REQUEST_BUY_INTENT = 1001;
-	
-	public static final int BILLING_RESPONSE_RESULT_OK = 0;
-    public static final int BILLING_RESPONSE_RESULT_USER_CANCELED = 1;
-    public static final int BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE = 3;
-    public static final int BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE = 4;
-    public static final int BILLING_RESPONSE_RESULT_DEVELOPER_ERROR = 5;
-    public static final int BILLING_RESPONSE_RESULT_ERROR = 6;
-    public static final int BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED = 7;
-    public static final int BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED = 8;
-    
-    private Activity activity;
-    private IJustWannaBuyThingsListener listener;
 
-    public IJustWannaBuyThings(Activity activity, IJustWannaBuyThingsListener listener) {
-    	this.activity = activity;
-    	this.listener = listener;
-    };
-    
+	public static final int BILLING_RESPONSE_RESULT_OK = 0;
+	public static final int BILLING_RESPONSE_RESULT_USER_CANCELED = 1;
+	public static final int BILLING_RESPONSE_RESULT_BILLING_UNAVAILABLE = 3;
+	public static final int BILLING_RESPONSE_RESULT_ITEM_UNAVAILABLE = 4;
+	public static final int BILLING_RESPONSE_RESULT_DEVELOPER_ERROR = 5;
+	public static final int BILLING_RESPONSE_RESULT_ERROR = 6;
+	public static final int BILLING_RESPONSE_RESULT_ITEM_ALREADY_OWNED = 7;
+	public static final int BILLING_RESPONSE_RESULT_ITEM_NOT_OWNED = 8;
+
+	private Activity activity;
+	private IJustWannaBuyThingsListener listener;
+
+	public IJustWannaBuyThings(Activity activity, IJustWannaBuyThingsListener listener) {
+		this.activity = activity;
+		this.listener = listener;
+	};
+
 	/**
 	 * Call this in your onCreate
 	 * @param context
@@ -66,10 +66,10 @@ public class IJustWannaBuyThings {
 
 			if (resultCode == Activity.RESULT_OK) {
 				try {
-					JSONObject jo = new JSONObject(purchaseData);
-					String sku = jo.getString("productId");
+					JSONObject object = new JSONObject(purchaseData);
+					String sku = object.getString("productId");
 					Log.d("IJustWannaBuyThings", "You have bought the " + sku + ". Excellent choice, adventurer!");
-					listener.onBuyAThing(responseCode, null);
+					listener.onBuyAThing(responseCode, object);
 				}
 				catch (JSONException e) {
 					Log.d("IJustWannaBuyThings", "Failed to parse purchase data.");
@@ -91,7 +91,7 @@ public class IJustWannaBuyThings {
 			this.activity.unbindService(mServiceConn);
 		}   
 	}
-	
+
 	/**
 	 * 
 	 * @author josh
@@ -100,8 +100,9 @@ public class IJustWannaBuyThings {
 	public abstract static class IJustWannaBuyThingsListener {
 		public abstract void onQueryAllTheThings(int responseCode, ArrayList<JSONObject> responseList);
 		public abstract void onBuyAThing(int responseCode, JSONObject purchasedData);
+		public abstract void onWhatsMine(int responseCode, ArrayList<String> ownedSkus, ArrayList<JSONObject> purchaseDataList, ArrayList<String> signatureList);
 	}
-	
+
 	/**
 	 * 
 	 * @param context
@@ -124,16 +125,16 @@ public class IJustWannaBuyThings {
 				}
 				return null;
 			}
-			
+
 			@Override
 			protected void onPostExecute(Bundle skuDetails) {
 				int responseCode = -1;
 				ArrayList<JSONObject> responseList = new ArrayList<JSONObject>();
-				
+
 				if (skuDetails != null) {
 					Log.d("IJustWannaBuyThings", "skuDetails response - " + skuDetails.getInt("RESPONSE_CODE"));
 					responseCode = skuDetails.getInt("RESPONSE_CODE");
-					
+
 					if (responseCode == 0) {
 						ArrayList<String> responseListString = skuDetails.getStringArrayList("DETAILS_LIST");
 						for (String thisResponse : responseListString) {
@@ -143,58 +144,45 @@ public class IJustWannaBuyThings {
 							} catch (JSONException e) {
 								e.printStackTrace();
 							}
-							
+
 						}
 					}
 				}
-				
+
 				listener.onQueryAllTheThings(responseCode, responseList);
 			}
-			
+
 		};
-		
+
 		asyncTask.execute();
-		
+
 	}
-	
-	
-	
-	/**
-	 * 
-	 * @author josh
-	 *
-	 */
-	public abstract static class BuyAThingListener {
-		
-	}
-	
+
 	/**
 	 * 
 	 * @param sku
 	 * @param listener
 	 */
 	public void buyAThing(final String sku) {
+		this.buyAThing(sku, "");
+	}
+	
+	public void buyAThing(final String sku, final String developerPayload) {
 		AsyncTask<Void, Void, Bundle> asyncTask = new AsyncTask<Void, Void, Bundle>() {
 
 			@Override
 			protected Bundle doInBackground(Void... params) {
 				try {
-					Bundle buyIntentBundle = mService.getBuyIntent(3, activity.getPackageName(), sku, "inapp", "bGoa+V7g/yqDXvKRqq+JTFn4uQZbPiQJo4pf9RzJ");
+					Bundle buyIntentBundle = mService.getBuyIntent(3, activity.getPackageName(), sku, "inapp", developerPayload);
 					Log.d("IJustWannaBuyThings", "skuDetails response - " + buyIntentBundle.getInt("RESPONSE_CODE"));
-					int response = buyIntentBundle.getInt("RESPONSE_CODE");
-					if (response == 0) {
-						return buyIntentBundle;
-					} else {
-						return null;
-					}
-
+					return buyIntentBundle;
 				} catch (RemoteException e) {
 					e.printStackTrace();
 				}
 				return null;
-				
+
 			}
-			
+
 			@Override
 			protected void onPostExecute(Bundle buyIntentBundle) {
 				if (buyIntentBundle != null) {
@@ -202,7 +190,7 @@ public class IJustWannaBuyThings {
 					try {
 						activity.startIntentSenderForResult(pendingIntent.getIntentSender(),
 								REQUEST_BUY_INTENT, new Intent(), Integer.valueOf(0), Integer.valueOf(0),
-								   Integer.valueOf(0));
+								Integer.valueOf(0));
 					} catch (SendIntentException e) {
 						e.printStackTrace();
 					}
@@ -210,9 +198,89 @@ public class IJustWannaBuyThings {
 					listener.onBuyAThing(-1, null);
 				}
 			}
-			
+
 		};
-		
+
+		asyncTask.execute();
+	}
+
+	public void whatsMine() {
+		ArrayList<String> ownedSkus = new ArrayList<String>();
+		ArrayList<JSONObject> purchaseDataList = new ArrayList<JSONObject>();
+		ArrayList<String> signatureList = new ArrayList<String>();
+		this.whatsMine(ownedSkus, purchaseDataList, signatureList);
+	}
+
+	private void whatsMine(final ArrayList<String> ownedSkus, final ArrayList<JSONObject> purchaseDataList, final ArrayList<String> signatureList) {
+		AsyncTask<Void, Void, Bundle> asyncTask = new AsyncTask<Void, Void, Bundle>() {
+
+			@Override
+			protected Bundle doInBackground(Void... params) {
+				try {
+					Bundle ownedItems = mService.getPurchases(3, activity.getPackageName(), "inapp", null);
+					return ownedItems;
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+				return null;
+
+			}
+
+			@Override
+			protected void onPostExecute(Bundle ownedItems) {
+				int responseCode = -1;
+
+				if (ownedItems != null) {
+					responseCode = ownedItems.getInt("RESPONSE_CODE");
+
+					ArrayList<String> ownedSkusString = 
+							ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
+					ArrayList<String> purchaseDataListString = 
+							ownedItems.getStringArrayList("INAPP_PURCHASE_DATA_LIST");
+					ArrayList<String> signatureListString = 
+							ownedItems.getStringArrayList("INAPP_DATA_SIGNATURE");
+					String continuationToken = 
+							ownedItems.getString("INAPP_CONTINUATION_TOKEN");
+
+					for (int i = 0; i < purchaseDataListString.size(); ++i) {
+						String purchaseData = purchaseDataListString.get(i);
+						try {
+							JSONObject object = new JSONObject(purchaseData);
+							purchaseDataList.add(object);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						
+						String signature = null;
+						if (signatureListString != null) {
+							signature = signatureListString.get(i);
+							if (signature != null) {
+								signatureList.add(signature);
+							}
+						}
+						String sku = null;
+						if (ownedSkusString != null) {
+							sku = ownedSkusString.get(i);
+							if (sku != null) {
+								ownedSkus.add(sku);
+							}
+						}
+
+					} 
+					
+					if (continuationToken != null) {
+						whatsMine(ownedSkus, purchaseDataList, signatureList);
+					} else {
+						listener.onWhatsMine(responseCode, ownedSkus, purchaseDataList, signatureList);
+					}
+
+				} else {
+					listener.onWhatsMine(responseCode, ownedSkus, purchaseDataList, signatureList);
+				}
+			}
+
+		};
+
 		asyncTask.execute();
 	}
 

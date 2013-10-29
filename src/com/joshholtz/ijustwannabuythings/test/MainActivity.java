@@ -36,12 +36,14 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		// Need to call IJustWannaBuyThings onCreate
 		iJustWannaBuyThings = new IJustWannaBuyThings(this, listener);
 		iJustWannaBuyThings.onCreate();
 	}
 	
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) { 
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// Need to call IJustWannaBuyThings onActivityResult
 		if (requestCode == IJustWannaBuyThings.REQUEST_BUY_INTENT) {
 			iJustWannaBuyThings.onActivityResult(requestCode, resultCode, data);
 		}
@@ -51,21 +53,19 @@ public class MainActivity extends Activity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		
+		// Need to call IJustWannaBuyThings onDestroy
 		iJustWannaBuyThings.onDestroy();
 	}
-	
-	public void onClickShowMeThings(View view) {
-		iJustWannaBuyThings.queryAllTheThings(Arrays.asList(new String[]{"bacon"}));
-	}
-	
-	public void onClickBuyMeBacon(View view) {
-		iJustWannaBuyThings.buyAThing("bacon");
-	}
 
+	/**
+	 * This is our listener for all things I just wanna buy
+	 */
 	IJustWannaBuyThingsListener listener = new IJustWannaBuyThingsListener() {
 
 		@Override
 		public void onQueryAllTheThings(int responseCode, ArrayList<JSONObject> responseList) {
+			// Just displaying the response
 			if (responseCode == IJustWannaBuyThings.BILLING_RESPONSE_RESULT_OK) {
 				for (JSONObject obj : responseList) {
 					Log.d(IJustWannaBuyThings.LOG_TAG, "QueryAllTheThings - " + obj.toString());
@@ -77,13 +77,54 @@ public class MainActivity extends Activity {
 
 		@Override
 		public void onBuyAThing(int responseCode, JSONObject purchasedData) {
+			// Just displaying the response
 			if (responseCode == IJustWannaBuyThings.BILLING_RESPONSE_RESULT_OK) {
 				Log.d(IJustWannaBuyThings.LOG_TAG, "BuyAThing - " + purchasedData.toString());
 			} else {
 				Log.d(IJustWannaBuyThings.LOG_TAG, "BuyAThing error occured - " + responseCode);
 			}
 		}
+
+		@Override
+		public void onWhatsMine(int responseCode, ArrayList<String> ownedSkus, ArrayList<JSONObject> purchaseDataList, ArrayList<String> signatureList) {
+			// Just displaying owned skus
+			for (String ownedSku : ownedSkus) {
+				Log.d(IJustWannaBuyThings.LOG_TAG, "Owned SKU - " + ownedSku);
+			}
+			
+			// Just display purchaseDataList
+			for (JSONObject purchaseData : purchaseDataList) {
+				Log.d(IJustWannaBuyThings.LOG_TAG, "Purchase Data - " + purchaseData);
+			}
+		}
 		
 	};
+	
+	/**
+	 * An onClick handler to show all products
+	 * @param view
+	 */
+	public void onClickShowMeThings(View view) {
+		// Queries information about the supplied skus
+		iJustWannaBuyThings.queryAllTheThings(Arrays.asList(new String[]{"bacon"}));
+	}
+	
+	/**
+	 * An onClick handler to buy a bacon
+	 * @param view
+	 */
+	public void onClickBuyMeBacon(View view) {
+		// Starts the purchase for a sku
+		iJustWannaBuyThings.buyAThing("bacon");
+	}
+	
+	/**
+	 * An onClick handler to buy a bacon
+	 * @param view
+	 */
+	public void onClickWhatsMine(View view) {
+		// Starts request to get whats mine
+		iJustWannaBuyThings.whatsMine();
+	}
 
 }
