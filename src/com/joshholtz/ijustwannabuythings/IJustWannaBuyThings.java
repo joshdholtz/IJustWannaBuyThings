@@ -50,10 +50,10 @@ public class IJustWannaBuyThings {
 	 */
 	public void onCreate() {
 		Intent intent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
-        // This line is requried to compile in Android 5.0 (L)
-        intent.setPackage("com.android.vending");
-        
-        this.activity.bindService(intent, mServiceConn, Context.BIND_AUTO_CREATE);
+		// This line is requried to compile in Android 5.0 (L)
+		intent.setPackage("com.android.vending");
+		
+		this.activity.bindService(intent, mServiceConn, Context.BIND_AUTO_CREATE);
 	}
 
 	/**
